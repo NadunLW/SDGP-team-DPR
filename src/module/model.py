@@ -1,16 +1,15 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import requests
 from numpy import loadtxt
-from flask import Flask, render_template, request, redirect, url_for, send_file
+
 import os
 import time
 
-app = Flask(__name__)
 
-@app.route('/', methods=['Get'])
-def hello_world():
-    return render_template('index.html')
+
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -49,7 +48,6 @@ def calculate_angle(a, b, c):
 
     return angle
 
-@app.route('/after', methods=['GET','POST'])
 def model():
     cap = cv2.VideoCapture(0)
     stage = None
@@ -173,14 +171,19 @@ def model():
                                       mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
                                       )
 
-            videofeed = cv2.imshow('Mediapipe Feed', image)
+            cv2.imshow('Mediapipe Feed', image)
 
-            return render_template('after.html', videofeed)
 
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
+            success, buffer = cv2.imencode('.jpeg', image)
+            image_bytes = buffer.tobytes()
+
+            yield(b'--frame\r\n'
+                  b'Content-Type: image/jpeg\r\n\r\n' + image_bytes + b'\r\n')
+
 
         cap.release()
         cv2.destroyAllWindows()
 
-    file.close()
+model()
