@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import requests
+from playsound import playsound
 from numpy import loadtxt
 
 import os
@@ -146,6 +146,7 @@ def model():
                     s_num = str(-1)
                 else:
                     stage = "Poor"
+                    playsound.playsound('Warning.mp3')
                     s_num = str(-2)
 
                 file = open('../csv/graph.txt', 'a')
